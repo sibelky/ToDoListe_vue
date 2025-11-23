@@ -20,83 +20,88 @@
 
     <h2>Noch zu erledigen:</h2>
     <ul id="Nichterledigt">
-      <li v-for="(todo, index) in offen" :key="index">
+      <li v-for="todo in offen" :key="todo.id">
         <label>
-          <input type="checkbox" @change="aufgabeErledigt(index)" />
-          <span>{{ todo }}</span>
+          <input type="checkbox" @change="aufgabeErledigt(todo)" />
+          <span>{{ todo.task }}</span>
         </label>
       </li>
     </ul>
 
     <h2>Erledigt:</h2>
     <ul id="Erledigt">
-      <li v-for="(todo, index) in erledigt" :key="index">
-        {{ todo }}
-        <span class="zurueck" @click="zurueck(index)">−</span>
+      <li v-for="todo in erledigt" :key="todo.id">
+        {{ todo.task }}
+        <span class="zurueck" @click="zurueck(todo)">−</span>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
+import api from "./api.js";
+
 export default {
   name: "TodoListe",
   data() {
     return {
       neueAufgabe: "",
-      offen: [],
-      erledigt: []
+      todos: []
     };
+  },
+  computed: {
+    offen() {
+      return this.todos.filter(t => !t.done);
+    },
+    erledigt() {
+      return this.todos.filter(t => t.done);
+    }
   },
   mounted() {
     this.ladeAufgaben();
   },
   methods: {
-    speichereAufgaben() {
-      localStorage.setItem(
-        "todoDaten",
-        JSON.stringify({ offen: this.offen, erledigt: this.erledigt })
-      );
-    },
-    ladeAufgaben() {
-      const daten = JSON.parse(localStorage.getItem("todoDaten"));
-      if (daten) {
-        this.offen = daten.offen;
-        this.erledigt = daten.erledigt;
-      } else {
-        // Beispielaufgaben wie im alten HTML
-        this.offen = [
-          "Wocheneinkauf erledigen",
-          "Oma anrufen",
-          "Termin beim Zahnarzt vereinbaren",
-          "Zum Fitness gehen",
-          "Webtechnologien M1 erledigen",
-          "Zimmer streichen"
-        ];
+    async ladeAufgaben() {
+      try {
+        const res = await api.get("/api/todos");
+        this.todos = res.data;
+      } catch (err) {
+        console.error(err);
       }
     },
-    neueAufgabeHinzufuegen() {
+    async neueAufgabeHinzufuegen() {
       const text = this.neueAufgabe.trim();
       if (!text) return;
-      this.offen.push(text);
-      this.neueAufgabe = "";
-      this.speichereAufgaben();
+      try {
+        const res = await api.post("/api/todos", { task: text });
+        this.todos.push(res.data);
+        this.neueAufgabe = "";
+      } catch (err) {
+        console.error(err);
+      }
     },
-    aufgabeErledigt(index) {
-      const item = this.offen.splice(index, 1)[0];
-      this.erledigt.push(item);
-      this.speichereAufgaben();
+    async aufgabeErledigt(todo) {
+      try {
+        const res = await api.put(`/api/todos/${todo.id}`, { done: true });
+        todo.done = res.data.done;
+      } catch (err) {
+        console.error(err);
+      }
     },
-    zurueck(index) {
-      const item = this.erledigt.splice(index, 1)[0];
-      this.offen.push(item);
-      this.speichereAufgaben();
+    async zurueck(todo) {
+      try {
+        const res = await api.put(`/api/todos/${todo.id}`, { done: false });
+        todo.done = res.data.done;
+      } catch (err) {
+        console.error(err);
+      }
     }
   }
 };
 </script>
 
 <style scoped>
+/* ...dein bestehender Style bleibt unverändert... */
 body {
   background-color: #ffefd5;
   font-family: Copper, sans-serif;
