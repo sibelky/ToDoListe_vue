@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import api from "./api.js";
+import { ladeTodos } from "../api.js";
 
 export default {
   name: "TodoListe",
