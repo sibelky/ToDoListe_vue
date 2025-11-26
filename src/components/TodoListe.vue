@@ -1,3 +1,4 @@
+
 <template>
   <div>
     <h1>Willkommen zu deiner To-Do Liste!</h1>
@@ -39,7 +40,9 @@
 </template>
 
 <script>
-import { ladeTodos } from "../api.js";
+
+import api from "../api.js";
+console.log("API:", api);
 
 export default {
   name: "TodoListe",
@@ -72,6 +75,7 @@ export default {
     async neueAufgabeHinzufuegen() {
       const text = this.neueAufgabe.trim();
       if (!text) return;
+
       try {
         const res = await api.post("/api/todos", { task: text });
         this.todos.push(res.data);
@@ -101,7 +105,6 @@ export default {
 </script>
 
 <style scoped>
-/* ...dein bestehender Style bleibt unverändert... */
 body {
   background-color: #ffefd5;
   font-family: Copper, sans-serif;
@@ -119,7 +122,7 @@ h1 {
 h2,
 h3 {
   color: #4682b4;
-  font-family: Times New Roman, monospace;
+  font-family: "Times New Roman", monospace;
 }
 
 p {
@@ -131,12 +134,6 @@ p {
 #eingabe {
   text-align: center;
   margin-bottom: 20px;
-}
-
-h1,
-.subtitle {
-  text-align: center;
-  margin-bottom: 15px;
 }
 
 #Nichterledigt,
