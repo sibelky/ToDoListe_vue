@@ -1,7 +1,5 @@
 <template>
-  <div id="app">
-    <TodoListe />
-  </div>
+  <TodoListe />
 </template>
 
 <script>
@@ -9,6 +7,8 @@ import TodoListe from "./components/TodoListe.vue";
 
 export default {
   name: "App",
-  components: { TodoListe }
+  components: {
+    TodoListe
+  }
 };
 </script>
